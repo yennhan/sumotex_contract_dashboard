@@ -6,7 +6,7 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     unoptimized: true,
-    domains: ['dashboard.SUMO.work','imgur.com'],
+    domains: ['dashboard.sumotex.co','imgur.com'],
   },
   ...(process.env.NODE_ENV === 'production' && {
     typescript: {
