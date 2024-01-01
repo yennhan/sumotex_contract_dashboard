@@ -100,16 +100,21 @@ export default function HomeScreen() {
       <div className="flex row mt-8 grid gap-6 sm:my-10 md:grid-cols-1">
         <p>Wallet Address: {wallet.wallet_address}</p>
         <p>Balance: {balance}</p>
+        <div className='flex row gap-4'>
         <div>
           <Button shape="rounded">Create Contract</Button>
-
         </div>
         <div>
           <Button shape="rounded">Transfer Amount</Button>
         </div>
         <div>
-          <Button shape="rounded" onClick={()=>createBlock()}>Create Block</Button>
+          <Button shape="rounded" onClick={() => createBlock()}>Create Block</Button>
         </div>
+        <div>
+          <Button shape="rounded">Mint Token</Button>
+        </div>
+        </div>
+     
       </div>
 
       <div className="flex flex-wrap">
