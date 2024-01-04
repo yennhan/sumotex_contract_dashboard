@@ -91,7 +91,7 @@ function Upload(
         {placeholderText || (
           <div className="text-center mb-4">
             <p className="mb-6 mt-4 text-sm tracking-tighter text-gray-600 dark:text-gray-400">
-              {placeholderText || 'PNG. Max 100mb.'}
+              {placeholderText || 'WASM file. Max 10mb.'}
             </p>
             <Button size='mini'>CHOOSE FILE</Button>
           </div>

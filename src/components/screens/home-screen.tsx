@@ -1,12 +1,12 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
-import { coinSlideData } from '@/data/static/coin-slide-data';
-import Avatar from '@/components/ui/avatar';
 import TopupButton from '@/components/ui/topup-button';
 import Button from '@/components/ui/button';
 import axios from 'axios';
-
+import Input from '@/components/ui/forms/input';
+import InputLabel from '@/components/ui/input-label';
+import FileInput from '@/components/ui/file-input';
 
 export default function HomeScreen() {
 
@@ -15,6 +15,10 @@ export default function HomeScreen() {
     private_key: ""
 
   });
+  const [nftContract, setNFTContract]=useState({
+    name:"",
+    symbol:""
+  })
   const [balance, setBalance] = useState(0);
   const clientAxios = axios.create();
   // useEffect to call the API once the component mounts
@@ -105,14 +109,15 @@ export default function HomeScreen() {
       });
   };
   const createNFTContract = async () => {
-    await clientAxios.post('https://rpc.sumotex.co/create-block',
-    {
-      "caller_address":"",
-      "to_address":"",
-      "computed_value":"",
-      "transaction_type":"ContractCreation"
+    await clientAxios.post('https://rpc.sumotex.co/create-nft-contract',
+      {
+        "caller_address": "",
+        "private_key": "",
+        "contract_name": "",
+        "contract_symbol":"",
+        "transaction_type": "ContractCreation"
 
-    })
+      })
       .then(res => {
         console.log(res);
       })
@@ -120,6 +125,24 @@ export default function HomeScreen() {
         console.error('Error making POST request:', error.response || error);
         // Handle errors appropriately
       });
+  };
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    if (name && value !== undefined) {
+      // setStoreDetail(prevStore => ({
+      //     ...prevStore,
+      //     [name]: value
+      // }));
+      // setStoreDetail(prevStore => {
+      //     const updatedStore = { ...prevStore, [name]: value };
+      //     return updatedStore;
+      // });
+    } else {
+      console.error('onChange received undefined or no name:', name, value);
+    }
+  }
+  const handleFileChange = async (files: Array<File>) => {
+    console.log(files[0])
   };
   return (
     <>
@@ -136,27 +159,65 @@ export default function HomeScreen() {
       <div className="flex row mt-8 grid gap-6 sm:my-10 md:grid-cols-1">
         <p>Wallet Address: {wallet.wallet_address}</p>
         <p>Balance: {balance}</p>
-        <div className='flex row gap-4'>
-          <div>
+        <div>
             <Button shape="rounded"
               variant='ghost'
               onClick={() => mintSMTX()}>Mint SMTX</Button>
           </div>
-          <div>
+        <div className='grid grid-cols-2 flex row'>
+          <div className="border border-dashed border-black p-4 bg-white mb-8  gap-4">
+            <div className="">
+              {/* Name */}
+              <div className="mb-8">
+                <InputLabel title="NFT Name" important />
+                <Input
+                  name="nftName"
+                  type="text"
+                  //value={store.storeLink}
+                  onChange={onChange}
+                  placeholder="gloo.work/store-shortener"
+                />
+              </div>
+              <div className="mb-8">
+                <InputLabel title="Max Supply" important />
+                <Input
+                  name="max supply"
+                  type="text"
+                  //value={store.name}
+                  onChange={onChange}
+                  placeholder="Name for the store or username"
+                />
+              </div>
+              <div className="mb-8">
+                <InputLabel title="WASM Contract" important />
+                <FileInput onFilesChanged={handleFileChange} />
+              </div>
+              <div className='mb-8'>
+                <div className='flex row mb-4'>
+                  <InputLabel
+                    title="Socials"
+                    subTitle="Add socials links (keeping it empty will not enable social link)"
+                    important />
+
+                </div>
+              </div>
+            </div>
+            <div>
             <Button shape="rounded"
-             variant='ghost'
-             onClick={()=>createNFTContract()}
+              variant='ghost'
+              onClick={() => createNFTContract()}
             >Create NFT Contract</Button>
           </div>
-          <div>
+          </div>
+
+        </div>
+        <div>
             <Button shape="rounded"
-             variant='ghost'
+              variant='ghost'
             >Create Token Contract</Button>
           </div>
-        
-        </div>
         <div className='flex row gap-4'>
-        <div>
+          <div>
             <Button shape="rounded">Transfer Amount</Button>
           </div>
           <div>
