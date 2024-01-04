@@ -84,6 +84,43 @@ export default function HomeScreen() {
         // Handle errors appropriately
       });
   };
+  const mintToken = async () => {
+    await clientAxios.post('https://rpc.sumotex.co/create-block')
+      .then(res => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.error('Error making POST request:', error.response || error);
+        // Handle errors appropriately
+      });
+  };
+  const mintSMTX = async () => {
+    await clientAxios.post('https://rpc.sumotex.co/create-block')
+      .then(res => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.error('Error making POST request:', error.response || error);
+        // Handle errors appropriately
+      });
+  };
+  const createNFTContract = async () => {
+    await clientAxios.post('https://rpc.sumotex.co/create-block',
+    {
+      "caller_address":"",
+      "to_address":"",
+      "computed_value":"",
+      "transaction_type":"ContractCreation"
+
+    })
+      .then(res => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.error('Error making POST request:', error.response || error);
+        // Handle errors appropriately
+      });
+  };
   return (
     <>
       <div className="flex flex-wrap">
@@ -92,7 +129,6 @@ export default function HomeScreen() {
             <h2 className="text-lg font-medium uppercase tracking-wider text-gray-900 dark:text-white  sm:text-2xl">
               Home
             </h2>
-
           </div>
         </div>
       </div>
@@ -101,20 +137,36 @@ export default function HomeScreen() {
         <p>Wallet Address: {wallet.wallet_address}</p>
         <p>Balance: {balance}</p>
         <div className='flex row gap-4'>
+          <div>
+            <Button shape="rounded"
+              variant='ghost'
+              onClick={() => mintSMTX()}>Mint SMTX</Button>
+          </div>
+          <div>
+            <Button shape="rounded"
+             variant='ghost'
+             onClick={()=>createNFTContract()}
+            >Create NFT Contract</Button>
+          </div>
+          <div>
+            <Button shape="rounded"
+             variant='ghost'
+            >Create Token Contract</Button>
+          </div>
+        
+        </div>
+        <div className='flex row gap-4'>
         <div>
-          <Button shape="rounded">Create Contract</Button>
+            <Button shape="rounded">Transfer Amount</Button>
+          </div>
+          <div>
+            <Button shape="rounded" onClick={() => createBlock()}>Create Block</Button>
+          </div>
+          <div>
+            <Button shape="rounded" onClick={() => mintToken()}>Mint Token</Button>
+          </div>
         </div>
-        <div>
-          <Button shape="rounded">Transfer Amount</Button>
-        </div>
-        <div>
-          <Button shape="rounded" onClick={() => createBlock()}>Create Block</Button>
-        </div>
-        <div>
-          <Button shape="rounded">Mint Token</Button>
-        </div>
-        </div>
-     
+
       </div>
 
       <div className="flex flex-wrap">
