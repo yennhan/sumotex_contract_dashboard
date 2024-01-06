@@ -24,7 +24,7 @@ const fira_code = Fira_Code({
 
 export const metadata = {
   title: 'SUMO',
-  description: 'SUMO Network',
+  description: 'SUMOTEX Network',
 };
 
 export default function RootLayout({
@@ -45,7 +45,7 @@ export default function RootLayout({
         <QueryClientProvider>
           <ThemeProvider>
             <WagmiConfig>
-              <SettingsButton />
+              {/* <SettingsButton /> */}
               <SettingsDrawer />
               <Suspense fallback={null}>
                 <ModalsContainer />

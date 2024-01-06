@@ -1,5 +1,5 @@
-import CreateNFT from '@/components/create-nft/create-nft';
+import NFTContractScreen from '@/components/create-nft/create-nft';
 
-export default function CreateNFTPageModern() {
-  return <CreateNFT />;
+export default function CreatorNFTModern() {
+  return <NFTContractScreen />;
 }

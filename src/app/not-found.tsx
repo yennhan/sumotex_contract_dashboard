@@ -44,7 +44,7 @@ const NotFoundPage = () => {
         <AnchorLink
           href={{
             pathname:
-              layout === LAYOUT_OPTIONS.MODERN ? '/' : routes.home + layout,
+              layout === LAYOUT_OPTIONS.MODERN ? '/' : routes.home,
           }}
         >
           <Button shape="rounded">Back to Home</Button>

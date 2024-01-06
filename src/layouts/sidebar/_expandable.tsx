@@ -24,7 +24,7 @@ const layoutOption = '';
 const sideBarMenuItems = defaultMenuItems.map((item) => ({
   name: item.name,
   icon: item.icon,
-  href: '/' + LAYOUT_OPTIONS.CLASSIC + (item.href === '/' ? '' : item.href),
+  href: '/' + (item.href === '/' ? '' : item.href),
   ...(item.dropdownItems && {
     dropdownItems: item?.dropdownItems?.map((dropdownItem: any) => ({
       name: dropdownItem.name,
@@ -32,7 +32,7 @@ const sideBarMenuItems = defaultMenuItems.map((item) => ({
       href:
         item.name === 'Authentication'
           ? layoutOption + dropdownItem.href
-          : '/' + LAYOUT_OPTIONS.RETRO + dropdownItem.href,
+          : '/' + layoutOption + dropdownItem.href,
     })),
   }),
 }));
@@ -76,8 +76,7 @@ export default function Sidebar({ className }: { className?: string }) {
       >
         {!open ? (
           <div onClick={() => setOpen(!open)}>
-            SUMOTEX
-            {/* <LogoIcon /> */}
+           SUMOTEX
           </div>
         ) : (
           <Logo />

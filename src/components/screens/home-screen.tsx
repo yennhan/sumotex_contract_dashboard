@@ -15,9 +15,10 @@ export default function HomeScreen() {
     private_key: ""
 
   });
-  const [nftContract, setNFTContract]=useState({
+  const [nft, setNFTContract]=useState({
     name:"",
-    symbol:""
+    symbol:"",
+    maxSupply:1000
   })
   const [balance, setBalance] = useState(0);
   const clientAxios = axios.create();
@@ -108,35 +109,14 @@ export default function HomeScreen() {
         // Handle errors appropriately
       });
   };
-  const createNFTContract = async () => {
-    await clientAxios.post('https://rpc.sumotex.co/create-nft-contract',
-      {
-        "caller_address": "",
-        "private_key": "",
-        "contract_name": "",
-        "contract_symbol":"",
-        "transaction_type": "ContractCreation"
 
-      })
-      .then(res => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.error('Error making POST request:', error.response || error);
-        // Handle errors appropriately
-      });
-  };
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     if (name && value !== undefined) {
-      // setStoreDetail(prevStore => ({
-      //     ...prevStore,
-      //     [name]: value
-      // }));
-      // setStoreDetail(prevStore => {
-      //     const updatedStore = { ...prevStore, [name]: value };
-      //     return updatedStore;
-      // });
+      setNFTContract(prevStore => {
+          const nftContract = { ...prevStore, [name]: value };
+          return nftContract;
+      });
     } else {
       console.error('onChange received undefined or no name:', name, value);
     }
@@ -162,51 +142,38 @@ export default function HomeScreen() {
         <div>
             <Button shape="rounded"
               variant='ghost'
-              onClick={() => mintSMTX()}>Mint SMTX</Button>
+              onClick={() => mintSMTX()}>Request SMTX</Button>
           </div>
         <div className='grid grid-cols-2 flex row'>
-          <div className="border border-dashed border-black p-4 bg-white mb-8  gap-4">
+          <div className="border border-dashed border-black p-4  dark:text-white mb-8  gap-4">
             <div className="">
               {/* Name */}
               <div className="mb-8">
-                <InputLabel title="NFT Name" important />
+                <InputLabel title="NFT Collections" important />
                 <Input
-                  name="nftName"
+                  name="name"
                   type="text"
-                  //value={store.storeLink}
+                  value={nft.name}
                   onChange={onChange}
-                  placeholder="gloo.work/store-shortener"
+                  placeholder="NFT Store"
                 />
               </div>
               <div className="mb-8">
                 <InputLabel title="Max Supply" important />
                 <Input
-                  name="max supply"
+                  name="maxSupply"
                   type="text"
-                  //value={store.name}
+                  value={nft.maxSupply}
                   onChange={onChange}
-                  placeholder="Name for the store or username"
+                  placeholder="Max Supply"
                 />
               </div>
               <div className="mb-8">
                 <InputLabel title="WASM Contract" important />
                 <FileInput onFilesChanged={handleFileChange} />
               </div>
-              <div className='mb-8'>
-                <div className='flex row mb-4'>
-                  <InputLabel
-                    title="Socials"
-                    subTitle="Add socials links (keeping it empty will not enable social link)"
-                    important />
-
-                </div>
-              </div>
             </div>
             <div>
-            <Button shape="rounded"
-              variant='ghost'
-              onClick={() => createNFTContract()}
-            >Create NFT Contract</Button>
           </div>
           </div>
 

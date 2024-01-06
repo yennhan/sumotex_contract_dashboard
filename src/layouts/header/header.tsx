@@ -9,7 +9,6 @@ import Hamburger from '@/components/ui/hamburger';
 import ActiveLink from '@/components/ui/links/active-link';
 import { useIsMounted } from '@/lib/hooks/use-is-mounted';
 import { useDrawer } from '@/components/drawer-views/context';
-import WalletConnect from '@/components/nft/wallet-connect';
 import routes from '@/config/routes';
 import { useLayout } from '@/lib/hooks/use-layout';
 import { LAYOUT_OPTIONS } from '@/lib/constants';

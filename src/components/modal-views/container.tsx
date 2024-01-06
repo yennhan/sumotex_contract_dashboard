@@ -14,32 +14,22 @@ import { LAYOUT_OPTIONS } from '@/lib/constants';
 import Followers from '@/components/profile/followers-view';
 // dynamic imports
 const SearchView = dynamic(() => import('@/components/search/view'));
-const ShareView = dynamic(() => import('@/components/nft/share-view'));
-const SelectWallet = dynamic(() => import('@/components/nft/select-wallet'));
 const StoreSocialList = dynamic(()=>import('@/components/create-store/store-social-list'));
 const ProfileInfo = dynamic(
   () => import('@/components/profile/profile-info-view'),
 );
-const PreviewContent = dynamic(
-  () => import('@/components/create-nft/nft-preview-content'),
-);
+
 
 function renderModalContent(view: MODAL_VIEW | string) {
   switch (view) {
     case 'SEARCH_VIEW':
       return <SearchView />;
-    case 'SHARE_VIEW':
-      return <ShareView />;
-    case 'WALLET_CONNECT_VIEW':
-      return <SelectWallet />;
     case 'PROFILE_INFO_VIEW':
       return <ProfileInfo />;
     case 'FOLLOWING_VIEW':
       return <Followers />;
     case 'FOLLOWERS_VIEW':
       return <Followers />;
-    case 'NFT_PREVIEW':
-      return <PreviewContent />;
     case 'STORE_SOCIAL_ADD':
       return <StoreSocialList/>;
     default:

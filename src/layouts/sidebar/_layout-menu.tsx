@@ -12,7 +12,6 @@ import { useDrawer } from '@/components/drawer-views/context';
 // import { useLayout } from '@/lib/hooks/use-layout';
 import { ChevronDown } from '@/components/icons/chevron-down';
 import { MenuItem } from '@/components/ui/collapsible-menu';
-import WalletConnect from '@/components/nft/wallet-connect';
 import {
   MinimalMenuItems,
   defaultMenuItems,
@@ -23,7 +22,7 @@ const layoutOption = '';
 const minimalMenuItems = MinimalMenuItems.map((item) => ({
   name: item.name,
   icon: item.icon,
-  href: '/' + LAYOUT_OPTIONS.MINIMAL + (item.href === '/' ? '' : item.href),
+  href: '/' + LAYOUT_OPTIONS.MODERN + (item.href === '/' ? '' : item.href),
   ...(item.dropdownItems && {
     dropdownItems: item?.dropdownItems?.map((dropdownItem: any) => ({
       name: dropdownItem.name,
@@ -31,7 +30,7 @@ const minimalMenuItems = MinimalMenuItems.map((item) => ({
       href:
         dropdownItem.name === 'Authentication'
           ? layoutOption + dropdownItem.href
-          : '/' + LAYOUT_OPTIONS.MINIMAL + dropdownItem.href,
+          : '/' + LAYOUT_OPTIONS.MODERN + dropdownItem.href,
       ...(item.dropdownItems && {
         dropdownItems: dropdownItem?.dropdownItems?.map((subItem: any) => ({
           name: subItem.name,
@@ -39,7 +38,7 @@ const minimalMenuItems = MinimalMenuItems.map((item) => ({
           href:
             dropdownItem.name === 'Authentication'
               ? layoutOption + subItem.href
-              : '/' + LAYOUT_OPTIONS.MINIMAL + subItem.href,
+              : '/' + LAYOUT_OPTIONS.MODERN + subItem.href,
         })),
       }),
     })),
@@ -182,9 +181,6 @@ export default function DrawerMenu({
             ))}
           </div>
         </div>
-      </div>
-      <div className="absolute bottom-4 right-0 z-10 w-full px-6">
-        <WalletConnect anchorClassName="w-full" btnClassName="!w-full !h-11" />
       </div>
     </div>
   );

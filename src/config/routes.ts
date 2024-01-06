@@ -1,8 +1,6 @@
 const routes = {
-  home: '/create-store',
-  store:'/create-store',
-  section:'/create-section',
-  membership:'/create-membership',
+  home: '/',
+  nft:'/create-nft',
   livePricing: '/live-pricing',
   swap: '/swap',
   liquidity: '/liquidity',

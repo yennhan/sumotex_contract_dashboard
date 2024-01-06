@@ -31,7 +31,7 @@ export default function Sidebar({
     icon: item.icon,
     href:
       layoutOption +
-      (layoutOption === `/${LAYOUT_OPTIONS.RETRO}` && item.href === '/'
+      (layoutOption === `/${LAYOUT_OPTIONS.MODERN}` && item.href === '/'
         ? ''
         : item.href),
     ...(item.dropdownItems && {
@@ -41,7 +41,7 @@ export default function Sidebar({
         href:
           item.name === 'Authentication'
             ? layoutOption + dropdownItem.href
-            : '/' + LAYOUT_OPTIONS.RETRO + dropdownItem.href,
+            : '/' + LAYOUT_OPTIONS.MODERN + dropdownItem.href,
       })),
     }),
   }));
@@ -54,9 +54,7 @@ export default function Sidebar({
       )}
     >
       <div className="relative flex h-24 items-center justify-between overflow-hidden px-6 py-4 2xl:px-8">
-        <p className='text-xl font-bold p-8'>
-          SUMOTEX</p>
-        {/* <Logo /> */}
+        SUMOTEX
         <div className="md:hidden">
           <Button
             title="Close"
