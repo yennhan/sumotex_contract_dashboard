@@ -32,6 +32,6 @@ export const defaultMenuItems = [
     
     name: 'Scanner',
     icon: <CompassIcon />,
-    href: routes.profile,
+    href: routes.scanner,
   },
 ];

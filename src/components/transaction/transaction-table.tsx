@@ -18,77 +18,97 @@ import { TransactionData } from '@/data/static/transaction-data';
 
 const COLUMNS = [
   {
-    Header: 'ID',
-    accessor: 'id',
-    minWidth: 60,
-    maxWidth: 80,
-  },
-  {
-    Header: 'Type',
-    accessor: 'transactionType',
-    minWidth: 60,
-    maxWidth: 80,
-  },
-  {
-    Header: () => <div className="ltr:ml-auto rtl:mr-auto">Date</div>,
-    accessor: 'createdAt',
-    // @ts-ignore
-    Cell: ({ cell: { value } }) => (
-      <div className="ltr:text-right rtl:text-left">{value}</div>
-    ),
-    minWidth: 160,
-    maxWidth: 220,
-  },
-  {
-    Header: () => <div className="ltr:ml-auto rtl:mr-auto">Asset</div>,
+    Header: () => <div className="px-1"></div>,
     accessor: 'symbol',
     // @ts-ignore
     Cell: ({ cell: { value } }) => (
-      <div className="ltr:text-right rtl:text-left">{value}</div>
+      <div className="">
+        <Star />
+      </div>
+    ),
+    minWidth: 40,
+    maxWidth: 20,
+  },
+  {
+    Header: '#',
+    accessor: 'market_cap_rank',
+    // @ts-ignore
+    Cell: ({ cell: { value } }) => <div>{value}</div>,
+    minWidth: 40,
+    maxWidth: 20,
+  },
+  {
+    Header: () => <div className="">Coin Name</div>,
+    accessor: 'name',
+    // @ts-ignore
+    Cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        {row.original.image}
+        <div className="ltr:text-left rtl:text-left">{row.original.name}</div>
+      </div>
+    ),
+    minWidth: 100,
+  },
+  {
+    Header: () => <div className="">Price</div>,
+    accessor: 'current_price',
+    // @ts-ignore
+    Cell: ({ cell: { value } }) => (
+      <div className="ltr:text-left rtl:text-left">${value}</div>
     ),
     minWidth: 80,
     maxWidth: 120,
   },
   {
-    Header: () => <div className="ltr:ml-auto rtl:mr-auto">Status</div>,
-    accessor: 'status',
+    Header: () => <div className="">1h%</div>,
+    accessor: 'price_change_percentage_1h_in_currency',
     // @ts-ignore
     Cell: ({ cell: { value } }) => (
-      <div className="ltr:text-right rtl:text-left">{value}</div>
-    ),
-    minWidth: 100,
-    maxWidth: 180,
-  },
-  {
-    Header: () => <div className="ltr:ml-auto rtl:mr-auto">Address</div>,
-    accessor: 'address',
-    // @ts-ignore
-    Cell: ({ cell: { value } }) => (
-      <div className="flex items-center justify-end">
-        <LinkIcon className="h-[18px] w-[18px] ltr:mr-2 rtl:ml-2" /> {value}
+      <div
+        className={`${
+          Math.sign(value) === 1 ? 'text-green-500' : 'text-red-500'
+        }`}
+      >
+        {Math.sign(value) === 1 ? '+' : ''}
+        {value}%
       </div>
     ),
-    minWidth: 220,
-    maxWidth: 280,
+    maxWidth: 80,
   },
   {
-    Header: () => <div className="ltr:ml-auto rtl:mr-auto">Amount</div>,
-    accessor: 'amount',
+    Header: () => <div className="">24h%</div>,
+    accessor: 'price_change_percentage_24h_in_currency',
     // @ts-ignore
     Cell: ({ cell: { value } }) => (
-      <div className="-tracking-[1px] ltr:text-right rtl:text-left">
-        <strong className="mb-0.5 flex justify-end text-base md:mb-1.5 md:text-lg lg:text-base 3xl:text-2xl">
-          {value.balance}
-          <span className="inline-block ltr:ml-1.5 rtl:mr-1.5 md:ltr:ml-2 md:rtl:mr-2">
-            BTC
-          </span>
-        </strong>
-        <span className="text-gray-600 dark:text-gray-400">
-          ${value.usdBalance}
-        </span>
+      <div
+        className={`${
+          Math.sign(value) === 1 ? 'text-green-500' : 'text-red-500'
+        }`}
+      >
+        {Math.sign(value) === 1 ? '+' : ''}
+        {value}%
       </div>
+    ),
+    maxWidth: 80,
+  },
+  {
+    Header: () => <div className="">Circulating Supply</div>,
+    accessor: 'circulating_supply',
+    // @ts-ignore
+    Cell: ({ cell: { value } }) => (
+      <div className="ltr:text-left rtl:text-left">${value}</div>
     ),
     minWidth: 200,
+    maxWidth: 300,
+  },
+  {
+    Header: () => <div className="">Volume (24h)</div>,
+    accessor: 'total_volume',
+    // @ts-ignore
+    Cell: ({ cell: { value } }) => (
+      <div className="ltr:text-left rtl:text-left">${value}</div>
+    ),
+    minWidth: 100,
     maxWidth: 300,
   },
 ];
@@ -129,7 +149,7 @@ export default function TransactionTable() {
       <div className="rounded-tl-lg rounded-tr-lg bg-white px-4 pt-6 dark:bg-light-dark md:px-8 md:pt-8">
         <div className="flex flex-col items-center justify-between border-b border-dashed border-gray-200 pb-5 dark:border-gray-700 md:flex-row">
           <h2 className="mb-3 shrink-0 text-lg font-medium uppercase text-black dark:text-white sm:text-xl md:mb-0 md:text-2xl">
-            Transaction History
+            Wallet Transaction History
           </h2>
         </div>
       </div>
@@ -156,9 +176,8 @@ export default function TransactionTable() {
                           {column.canResize && (
                             <div
                               {...column.getResizerProps()}
-                              className={`resizer ${
-                                column.isResizing ? 'isResizing' : ''
-                              }`}
+                              className={`resizer ${column.isResizing ? 'isResizing' : ''
+                                }`}
                             />
                           )}
                           <span className="ltr:ml-1 rtl:mr-1">

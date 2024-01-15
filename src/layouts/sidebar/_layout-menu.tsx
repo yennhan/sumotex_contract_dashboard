@@ -13,13 +13,12 @@ import { useDrawer } from '@/components/drawer-views/context';
 import { ChevronDown } from '@/components/icons/chevron-down';
 import { MenuItem } from '@/components/ui/collapsible-menu';
 import {
-  MinimalMenuItems,
   defaultMenuItems,
 } from '@/layouts/sidebar/_menu-items';
 import { LAYOUT_OPTIONS } from '@/lib/constants';
 import { ChevronRight } from '@/components/icons/chevron-right';
 const layoutOption = '';
-const minimalMenuItems = MinimalMenuItems.map((item) => ({
+const minimalMenuItems = defaultMenuItems.map((item) => ({
   name: item.name,
   icon: item.icon,
   href: '/' + LAYOUT_OPTIONS.MODERN + (item.href === '/' ? '' : item.href),

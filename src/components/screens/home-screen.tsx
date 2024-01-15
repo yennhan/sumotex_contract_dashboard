@@ -7,123 +7,254 @@ import axios from 'axios';
 import Input from '@/components/ui/forms/input';
 import InputLabel from '@/components/ui/input-label';
 import FileInput from '@/components/ui/file-input';
+import { useCopyToClipboard } from 'react-use';
+import TransactionTable from './transaction-table';
+import { Check } from '@/components/icons/check';
+import { Copy } from '@/components/icons/copy';
+import BigNumber from 'bignumber.js';
+import { Listbox } from '@/components/ui/listbox';
+import { Transition } from '@headlessui/react';
+import { ChevronDown } from '@/components/icons/chevron-down';
+// import icons
+import { EyeIcon } from '@/components/icons/eye';
+import { EyeSlashIcon } from '@/components/icons/eyeslash';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function HomeScreen() {
-
-  const [wallet, setWallet] = useState({
+  const [state, setState] = useState(false);
+  const [selectedWallet, setSelectedWallet] = useState({
     wallet_address: "",
     private_key: ""
-
   });
-  const [nft, setNFTContract]=useState({
-    name:"",
-    symbol:"",
-    maxSupply:1000
+  const [wallets, setWallets] = useState([]);
+  const [transferState, setTransferRequest] = useState(0);
+  const [transferTxn, setTransferTxn] = useState({
+    gas_cost: 100,
+    transaction_hash: ""
+  });
+  const [txnDetail, setTxnDetail] = useState({
+    smtxValue: 0,
+    walletAddress: ""
+
   })
+  const [txn, setTxn] = useState([]);
+
   const [balance, setBalance] = useState(0);
   const clientAxios = axios.create();
   // useEffect to call the API once the component mounts
+  const fetchWalletTransactions = async (address: string) => {
+    const thePubAddress = address
+    await clientAxios.post('https://rpc.sumotex.co/get-wallet-transactions',
+      JSON.stringify({
+        "pub_address": thePubAddress
+      }), {})
+      .then(res => {
+        setTxn(res.data.result.transactions);
+
+      })
+      .catch((error) => {
+        console.error('Error making POST request:', error.response || error);
+        // Handle errors appropriately
+      });
+  }
+  const checkWallet = async () => {
+    const thePubAddress = selectedWallet.wallet_address
+    await clientAxios.post('https://rpc.sumotex.co/check-account',
+      JSON.stringify({
+        "pub_address": thePubAddress
+      }), {})
+      .then(res => {
+        return res.data.result
+
+      })
+      .catch((error) => {
+        console.error('Error making POST request:', error.response || error);
+        // Handle errors appropriately
+      });
+  }
+  const fetchBalance = async (address: String) => {
+
+    await clientAxios.post('https://rpc.sumotex.co/get-wallet-balance',
+      JSON.stringify({
+        "pub_address": address
+      }), {})
+      .then(res => {
+        setBalance(res.data.result.balance)
+        // Handle response data as needed
+      })
+      .catch((error) => {
+        console.error('Error making POST request:', error.response || error);
+        // Handle errors appropriately
+      });
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      await clientAxios.post('https://rpc.sumotex.co/create-wallet', JSON.stringify({}))
-        .then(res => {
-          setWallet(res.data.result);
-          fetchBalance(res.data.result.wallet_address);
-          const privateKey = res.data.result.private_key;
-
-          // Save the private key to local storage
-          localStorage.setItem('wallet_address', res.data.result.wallet_address);
-          localStorage.setItem('private_key', privateKey);
-          // Handle response data as needed
-        })
-        .catch((error) => {
-          console.error('Error making POST request:', error.response || error);
-          // Handle errors appropriately
-        });
-    };
-    const fetchBalance = async (address: String) => {
-      await clientAxios.post('https://rpc.sumotex.co/get-wallet-balance',
-        JSON.stringify({
-          "pub_address": address
-        }), {})
-        .then(res => {
-          setBalance(res.data.result.balance)
-          // Handle response data as needed
-        })
-        .catch((error) => {
-          console.error('Error making POST request:', error.response || error);
-          // Handle errors appropriately
-        });
-    };
-    const fetchBlocks = async () => {
-      await clientAxios.get('https://rpc.sumotex.co/get-block')
-        .then(res => {
-          console.log(res.data.result.blocks);
-        })
-        .catch((error) => {
-          console.error('Error making POST request:', error.response || error);
-          // Handle errors appropriately
-        });
-    };
-
-    const thePubAddress = localStorage.getItem("wallet_address");
-    const thePrivateKey = localStorage.getItem("private_key");
-    if (thePubAddress && thePrivateKey) {
-      setWallet({
-        wallet_address: thePubAddress,
-        private_key: thePrivateKey
-      })
+    const walletsString = localStorage.getItem("wallets");
+    const theWallets = walletsString ? JSON.parse(walletsString) : [];
+    const isWallet: any = checkWallet();
+    if (walletsString && theWallets) {
+      setSelectedWallet(theWallets[0])
+      fetchBalance(theWallets[0].wallet_address);
+      fetchWalletTransactions(theWallets[0].wallet_address);
+      setWallets(theWallets);
     } else {
-      fetchData();
+      createNewWallet();
     }
-    fetchBlocks();
+    //fetchBlocks();
+
   }, []); // Empty dependency array means this effect runs once on mount
-
-  const createBlock = async () => {
-    await clientAxios.get('https://rpc.sumotex.co/create-block')
-      .then(res => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.error('Error making POST request:', error.response || error);
-        // Handle errors appropriately
-      });
-  };
-  const mintToken = async () => {
-    await clientAxios.post('https://rpc.sumotex.co/create-block')
-      .then(res => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.error('Error making POST request:', error.response || error);
-        // Handle errors appropriately
-      });
-  };
+  useEffect(() => {
+    fetchBalance(selectedWallet.wallet_address);
+    fetchWalletTransactions(selectedWallet.wallet_address);
+  }, [selectedWallet])
   const mintSMTX = async () => {
-    await clientAxios.post('https://rpc.sumotex.co/create-block')
+
+  };
+  const createNewWallet = async () => {
+    await clientAxios.post('https://rpc.sumotex.co/create-wallet', JSON.stringify({}))
       .then(res => {
-        console.log(res);
+        const pub_address = res.data.result.wallet_address;
+        const privateKey = res.data.result.private_key;
+        const theWallet = {
+          wallet_address: pub_address,
+          private_key: privateKey
+        }
+        const newWallets = [...wallets, theWallet];
+        localStorage.setItem('wallets', JSON.stringify(newWallets));
+        setWallets(newWallets);
+        setSelectedWallet(theWallet)
       })
       .catch((error) => {
         console.error('Error making POST request:', error.response || error);
         // Handle errors appropriately
       });
-  };
+  }
+  const createTransactions = async () => {
+    if (transferState == 0) {
+      if (txnDetail.walletAddress == "") {
+        toast.error("Empty wallet address")
 
+      } else if (txnDetail.smtxValue == 0) {
+        toast.error("Please insert a value for transfer, 18 decimal places")
+      } else {
+        await clientAxios.post('https://rpc.sumotex.co/create-transaction',
+          JSON.stringify({
+            "caller_address": selectedWallet.wallet_address,
+            "to_address": txnDetail.walletAddress,
+            "computed_value": Number(txnDetail.smtxValue),
+            "transaction_type": "SimpleTransfer"
+          }))
+          .then(res => {
+            setTransferTxn(res.data.result);
+            setTransferRequest(1)
+          })
+          .catch((error) => {
+            console.error('Error making POST request:', error.response || error);
+            // Handle errors appropriately
+          });
+      }
+
+    } else {
+      await clientAxios.post('https://rpc.sumotex.co/sign-transaction',
+        JSON.stringify({
+          "caller_address": selectedWallet.wallet_address,
+          "private_key": selectedWallet.private_key,
+          "txn_hash": transferTxn.transaction_hash,
+          "computed_value": Number(0),
+          "transaction_type": "SimpleTransfer"
+        }))
+        .then(res => {
+          setTransferRequest(2)
+          fetchBalance(selectedWallet.wallet_address)
+        })
+        .catch((error) => {
+          console.error('Error making POST request:', error.response || error);
+          // Handle errors appropriately
+        });
+    }
+
+
+  }
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     if (name && value !== undefined) {
-      setNFTContract(prevStore => {
-          const nftContract = { ...prevStore, [name]: value };
-          return nftContract;
+      setTxnDetail(prevTxn => {
+        const txnDetail = { ...prevTxn, [name]: value };
+        return txnDetail;
       });
     } else {
       console.error('onChange received undefined or no name:', name, value);
     }
   }
-  const handleFileChange = async (files: Array<File>) => {
-    console.log(files[0])
-  };
+  const [copyButtonStatus, setCopyButtonStatus] = useState(false);
+  const [_, copyToClipboard] = useCopyToClipboard();
+  function handleCopyToClipboard() {
+    copyToClipboard(selectedWallet.wallet_address);
+    setCopyButtonStatus(true);
+    setTimeout(() => {
+      setCopyButtonStatus(copyButtonStatus);
+    }, 2500);
+  }
+
+  const WalletList = () => {
+
+    return (
+      <div className="relative">
+        <Listbox value={selectedWallet} onChange={setSelectedWallet}>
+          <Listbox.Button className="ml-4 flex w-auto items-center justify-between rounded-lg bg-gray-100 px-4 text-xs text-gray-900 dark:bg-gray-800 dark:text-white sm:text-sm lg:h-12">
+            {wallets.length > 0 ? selectedWallet.wallet_address : null}
+            <ChevronDown className="ltr:ml-2 rtl:mr-2" />
+            <div
+              title="Copy Address"
+              className="flex cursor-pointer items-center px-4 text-gray-500 transition hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+              onClick={() => handleCopyToClipboard()}
+            >
+              {copyButtonStatus ? (
+                <Check className="h-auto w-3.5 text-green-500" />
+              ) : (
+                <Copy className="h-auto w-3.5" />
+              )}
+            </div>
+          </Listbox.Button>
+          <Transition
+            enter="ease-out duration-200"
+            enterFrom="opacity-0 translate-y-2"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 -translate-y-0"
+            leaveTo="opacity-0 translate-y-2"
+          >
+            <Listbox.Options className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white p-3 shadow-large dark:bg-light-dark sm:w-full">
+              {wallets.length > 0 ? wallets.map((item) => (
+                <Listbox.Option key={item.wallet_address} value={item}>
+                  {({ selected }) => (
+                    <div
+                      className={`block cursor-pointer rounded-lg px-3 py-2 text-xs font-medium text-gray-900 transition dark:text-white sm:text-sm  ${selected
+                        ? 'my-1 bg-gray-100 dark:bg-gray-800'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                        }`}
+                    >
+                      {item.wallet_address}
+                    </div>
+                  )}
+                </Listbox.Option>
+              )) : null}
+              <Listbox.Option key={""} value={0}>
+                <div className='pt-4'>
+                  <Button onClick={() => createNewWallet()}>Create New Wallet</Button>
+                </div>
+
+              </Listbox.Option>
+            </Listbox.Options>
+
+          </Transition>
+
+        </Listbox>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-wrap">
@@ -135,70 +266,102 @@ export default function HomeScreen() {
           </div>
         </div>
       </div>
-
-      <div className="flex row mt-8 grid gap-6 sm:my-10 md:grid-cols-1">
-        <p>Wallet Address: {wallet.wallet_address}</p>
-        <p>Balance: {balance}</p>
-        <div>
-            <Button shape="rounded"
-              variant='ghost'
-              onClick={() => mintSMTX()}>Request SMTX</Button>
-          </div>
-        <div className='grid grid-cols-2 flex row'>
-          <div className="border border-dashed border-black p-4  dark:text-white mb-8  gap-4">
-            <div className="">
-              {/* Name */}
-              <div className="mb-8">
-                <InputLabel title="NFT Collections" important />
-                <Input
-                  name="name"
-                  type="text"
-                  value={nft.name}
-                  onChange={onChange}
-                  placeholder="NFT Store"
-                />
-              </div>
-              <div className="mb-8">
-                <InputLabel title="Max Supply" important />
-                <Input
-                  name="maxSupply"
-                  type="text"
-                  value={nft.maxSupply}
-                  onChange={onChange}
-                  placeholder="Max Supply"
-                />
-              </div>
-              <div className="mb-8">
-                <InputLabel title="WASM Contract" important />
-                <FileInput onFilesChanged={handleFileChange} />
-              </div>
-            </div>
-            <div>
-          </div>
-          </div>
-
-        </div>
-        <div>
-            <Button shape="rounded"
-              variant='ghost'
-            >Create Token Contract</Button>
-          </div>
-        <div className='flex row gap-4'>
-          <div>
-            <Button shape="rounded">Transfer Amount</Button>
-          </div>
-          <div>
-            <Button shape="rounded" onClick={() => createBlock()}>Create Block</Button>
-          </div>
-          <div>
-            <Button shape="rounded" onClick={() => mintToken()}>Mint Token</Button>
-          </div>
-        </div>
-
+      <ToastContainer
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+      />
+      <div className='flex row'>
+        <p>Wallet Address: </p>
+        <WalletList />
       </div>
 
-      <div className="flex flex-wrap">
+      <div className="flex row mt-4 grid gap-6 sm:my-10 md:grid-cols-1">
+        <div className=' w-auto items-center justify-between rounded-lg '>
+          <div
+            className='flex row'
+          >Private Key
+            <span
+              className="pl-4"
+              onClick={() => setState(!state)}
+            >
+              {state ? (
+                <EyeIcon className="h-12 w-12 sm:h-6 sm:w-6" />
+              ) : (
+                <EyeSlashIcon className="h-4 w-4 sm:h-6 sm:w-6" />
+              )}
+            </span>
+
+          </div>
+          <Input
+            value={selectedWallet.private_key}
+            type={state ? 'text' : 'password'}
+            disabled
+            placeholder="private key"
+            inputClassName="bg-white border-0 text-md"
+          />
+
+        </div>
+
+        <p>Balance ($): {balance>0?new BigNumber(balance).dividedBy(new BigNumber(10).pow(18)).toFixed(18):"Loading..."} SMTX</p>
+
+        <div>
+          <Button shape="rounded"
+            variant='ghost'
+            disabled
+            onClick={() => mintSMTX()}>Request SMTX</Button>
+
+        </div>
+        <div className="flex row mt-8 grid gap-6 sm:my-10 md:grid-cols-1">
+          <h1>Transfer SMTX here</h1>
+          {transferState == 0 ?
+            <div className='grid grid-cols-2 flex row'>
+              <div className="border border-dashed border-black p-4  dark:text-white mb-8  gap-4">
+                <div className="">
+                  {/* Name */}
+                  <div className="mb-8">
+                    <InputLabel title="Amount in $SMTX" important />
+                    <Input
+                      name="smtxValue"
+                      type="number"
+                      value={txnDetail.smtxValue}
+                      onChange={onChange}
+                      placeholder="$SMTX in 18 decimals places"
+                    />
+                  </div>
+                  <div className="mb-8">
+                    <InputLabel title="Wallet Address" important />
+                    <Input
+                      name="walletAddress"
+                      type="text"
+                      value={txnDetail.walletAddress}
+                      onChange={onChange}
+                      placeholder="Transfer to wallet address"
+                    />
+                  </div>
+                  <div>
+                  </div>
+                </div>
+                <Button shape="rounded" onClick={createTransactions} className=''>Submit Request</Button>
+              </div>
+            </div> : transferState == 1 ?
+              <div className="border border-dashed border-black p-4  dark:text-white mb-8  gap-4">
+                <p>Gas Cost: {transferTxn.gas_cost}</p>
+                <p>Transcation Hash: {transferTxn.transaction_hash}</p>
+                <div className='mt-4'>
+                  <Button shape="rounded" onClick={createTransactions} className=''>Sign Transactions</Button>
+                </div>
+
+              </div> : transferState == 2 ? <div>
+                <p>Transaction Completed!</p>
+                <p>Transaction Hash:{transferTxn.transaction_hash}</p>
+              </div> : null}
+        </div>
+        {txn && txn.length > 0 ? <div>
+          <TransactionTable data={txn} />
+        </div> : null}
       </div>
+
     </>
   );
 }

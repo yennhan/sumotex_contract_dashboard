@@ -1,5 +1,6 @@
 const routes = {
   home: '/',
+  scanner:'/scanner',
   nft:'/create-nft',
   livePricing: '/live-pricing',
   swap: '/swap',
