@@ -15,7 +15,7 @@ import {
   useGlobalFilter,
 } from 'react-table';
 import { LongArrowLeft } from '@/components/icons/long-arrow-left';
-import CryptocurrencyRetroDrawer from '@/components/cryptocurrency-pricing-table/cryptocurrency-retro-drawer';
+import TransactionsDrawer from './TransactionsDrawer';
 
 function TransactionDrawerTable({
   // @ts-ignore
@@ -193,7 +193,7 @@ function TransactionDrawerTable({
         </div>
       </div>
 
-      <CryptocurrencyRetroDrawer isOpen={isOpen} setIsOpen={setIsOpen} />
+      <TransactionsDrawer isOpen={isOpen} setIsOpen={setIsOpen} selectedData={""} />
     </>
   );
 }

@@ -2,8 +2,9 @@
 
 const nextConfig = {
   output: 'export',
-  trailingSlash: true,
+  exportTrailingSlash: false,
   reactStrictMode: true,
+  exportMapPath:true,
   images: {
     unoptimized: true,
     domains: ['dashboard.sumotex.co','imgur.com'],

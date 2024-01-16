@@ -357,9 +357,10 @@ export default function HomeScreen() {
                 <p>Transaction Hash:{transferTxn.transaction_hash}</p>
               </div> : null}
         </div>
+        <h1>Transactions</h1>
         {txn && txn.length > 0 ? <div>
           <TransactionTable data={txn} />
-        </div> : null}
+        </div> : <p>Loading...</p>}
       </div>
 
     </>
