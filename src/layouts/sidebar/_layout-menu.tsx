@@ -29,7 +29,7 @@ const minimalMenuItems = defaultMenuItems.map((item) => ({
       href:
         dropdownItem.name === 'Authentication'
           ? layoutOption + dropdownItem.href
-          : '/' + LAYOUT_OPTIONS.MODERN + dropdownItem.href,
+          : '/' + dropdownItem.href,
       ...(item.dropdownItems && {
         dropdownItems: dropdownItem?.dropdownItems?.map((subItem: any) => ({
           name: subItem.name,
@@ -37,7 +37,7 @@ const minimalMenuItems = defaultMenuItems.map((item) => ({
           href:
             dropdownItem.name === 'Authentication'
               ? layoutOption + subItem.href
-              : '/' + LAYOUT_OPTIONS.MODERN + subItem.href,
+              : '/' + subItem.href,
         })),
       }),
     })),

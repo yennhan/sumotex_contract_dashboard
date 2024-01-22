@@ -16,7 +16,7 @@ import {
 } from 'react-table';
 import { LongArrowLeft } from '@/components/icons/long-arrow-left';
 import CryptocurrencyRetroDrawer from '@/components/cryptocurrency-pricing-table/cryptocurrency-retro-drawer';
-
+import BlockDrawer from './BlockDrawer';
 function BlockDrawerTable({
   // @ts-ignore
   columns,
@@ -54,6 +54,12 @@ function BlockDrawerTable({
   const { globalFilter } = state;
   const [isOpen, setIsOpen] = useState(false);
 
+  const [selectedData,setSelectedData]=useState({});
+
+  const onSelected =(selectedData:any)=>{
+    setSelectedData(data[selectedData])
+    setIsOpen(true)
+  }
   return (
     <>
       <div className="mt-11">
@@ -133,7 +139,7 @@ function BlockDrawerTable({
                           {...row.getRowProps()}
                           key={idx + 1}
                           className="h-[50px] max-h-[50px] cursor-pointer items-center rounded uppercase transition-all last:mb-0 hover:bg-[#F3F4F6] dark:bg-light-dark"
-                          onClick={() => setIsOpen(true)}
+                          onClick={() => onSelected(idx)}
                         >
                           {row.cells.map((cell, idx) => {
                             return (
@@ -191,6 +197,7 @@ function BlockDrawerTable({
             </div>
           </div>
         </div>
+        <BlockDrawer isOpen={isOpen} setIsOpen={setIsOpen} selectedData={selectedData} />
       </div>
 
     </>

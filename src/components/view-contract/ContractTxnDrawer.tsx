@@ -43,7 +43,7 @@ function TransactionInfo({
     );
 }
 
-function TransactionsDrawer({
+function ContractTransactionsDrawer({
     isOpen,
     setIsOpen,
     selectedData,
@@ -125,4 +125,4 @@ function TransactionsDrawer({
     );
 }
 
-export default TransactionsDrawer;
+export default ContractTransactionsDrawer;

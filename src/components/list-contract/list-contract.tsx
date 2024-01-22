@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
 import routes from '@/config/routes';
 import AnchorLink from '@/components/ui/links/anchor-link';
-export default function NFTContractScreen() {
+export default function ListContractScreen() {
 
     const [loading, setLoading] = useState(false);
     const [stage, setStage] = useState(0);
@@ -198,7 +198,7 @@ export default function NFTContractScreen() {
                 <div className="mb-6 grid grid-cols-3 gap-12 sm:mb-10">
                     <div className="col-span-3 flex items-center justify-between lg:col-span-2">
                         <h2 className="text-lg font-medium uppercase tracking-wider text-gray-900 dark:text-white  sm:text-2xl">
-                            Create NFT Contract
+                            Created NFT Contract
                         </h2>
                     </div>
                 </div>
@@ -208,72 +208,16 @@ export default function NFTContractScreen() {
                 hideProgressBar={false}
                 newestOnTop={false}
             />
-            <div className="flex row mt-8 grid gap-6 sm:my-10 md:grid-cols-1">
-                <div className='grid grid-cols-2 flex row'>
-
-                    <div className="border border-dashed border-gray-200 p-4  dark:text-white mb-8  gap-4">
-                        {stage == 0 ? <div className="">
-                            {/* Name */}
-                            <div className="mb-8">
-                                <InputLabel title="NFT Collections" important />
-                                <Input
-                                    name="name"
-                                    type="text"
-                                    value={nft.name}
-                                    onChange={onChange}
-                                    placeholder="NFT Collections name"
-                                />
-                            </div>
-                            <div className="mb-8">
-                                <InputLabel title="Max Supply" important />
-                                <Input
-                                    name="maxSupply"
-                                    type="text"
-                                    value={nft.maxSupply}
-                                    onChange={onChange}
-                                    placeholder="Max Supply"
-                                />
-                            </div>
-                            {/* <div className="mb-8">
-                <InputLabel title="WASM Contract" important />
-                <FileInput onFilesChanged={handleFileChange} />
-              </div> */}
-                        </div> : stage != 0 ? <div>
-                            <h5>CA Address: {contractDetail.contract_address}</h5>
-                            <h5>Gas Cost: {contractDetail.gas_cost}</h5>
-                            <h5>Txn Hash: {contractDetail.txn_hash}</h5>
-                        </div> : null}
-                        <div>
-                        </div>
-                    </div>
-                </div>
-                {stage == 0 ? <div>
-                    <Button
-                        shape="rounded"
-                        variant='solid'
-                        isLoading={loading}
-                        onClick={() => createNFTContract()}
-                    >Create Token Contract</Button>
-                </div> : stage == 1 ?
-                    <div>
-                        <Button
-                            shape="rounded"
-                            variant='solid'
-                            isLoading={loading}
-                            onClick={() => createNFTContract()}
-                        >Sign Contract</Button>
-                    </div> : null}
-            </div>
-            <h1>List of Contracts created</h1>
+            <h1>List of Contracts</h1>
             <div className="flex flex-wrap">
                 {contractList.map((item, index) => (
-                    <div key={index} className='col-span-3 m-6 p-4 border-dashed border border-black'>
+                    <div key={index} className='col-span-3 m-6 p-4 border-solid border border-white rounded'>
                         <div className='text-sm mb-4'>
                             <p>Contract Address: {item.to_address} </p>
                         </div>
                         <div>
                             <AnchorLink
-                                href={routes.viewNft+"contractAddress="+item.to_address}
+                                href={routes.viewNft + "contractAddress=" + item.to_address}
                                 className="ml-2 font-medium underline dark:text-white-300"
                             >
                                 View

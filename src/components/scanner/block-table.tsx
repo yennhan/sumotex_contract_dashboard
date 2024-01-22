@@ -21,7 +21,7 @@ const COLUMNS = [
         accessor: 'timestamp',
         // @ts-ignore
         Cell: ({ cell: { value } }) => (
-            <p className="">{moment.unix(value).format("MM/DD/YYYY HH:MM")}</p>
+            <p className="">{moment.unix(value).format("DD/MM/YYYY HH:MM")}</p>
         ),
         minWidth: 60,
         maxWidth: 60,

@@ -7,7 +7,7 @@ export function ThemeProvider({ children }: React.PropsWithChildren<{}>) {
     <NextThemeProvider
       attribute="class"
       enableSystem={false}
-      defaultTheme="light"
+      defaultTheme="dark"
     >
       {children}
     </NextThemeProvider>

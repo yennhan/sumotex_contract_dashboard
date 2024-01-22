@@ -14,7 +14,7 @@ import {
   useGlobalFilter,
 } from 'react-table';
 import { LongArrowLeft } from '@/components/icons/long-arrow-left';
-import CryptocurrencyDrawer from '@/components/cryptocurrency-pricing-table/cryptocurrency-drawer';
+import BlockDrawer from './BlockDrawer';
 
 function BlockAccordionTable({
   // @ts-ignore
@@ -52,6 +52,12 @@ function BlockAccordionTable({
   const { pageIndex } = state;
   const { globalFilter } = state;
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedData,setSelectedData]=useState({});
+
+  const onSelected =(selectedData:any)=>{
+    setSelectedData(data[selectedData])
+    setIsOpen(true)
+  }
 
   return (
     <div className="relative z-20 mt-11 flex flex-col overflow-hidden rounded-lg shadow-card lg:flex-row">
@@ -128,7 +134,7 @@ function BlockAccordionTable({
                         {...row.getRowProps()}
                         key={idx + 1}
                         className="h-[50px] max-h-[50px] cursor-pointer items-center rounded uppercase transition-all last:mb-0 hover:bg-[#F3F4F6] dark:bg-light-dark hover:dark:bg-gray-700"
-                        onClick={() => setIsOpen(!isOpen)}
+                        onClick={() => onSelected(idx)}
                       >
                         {row.cells.map((cell, idx) => {
                           return (
@@ -185,7 +191,7 @@ function BlockAccordionTable({
         </div>
       </div>
 
-      {/* <CryptocurrencyDrawer isOpen={isOpen} setIsOpen={setIsOpen} /> */}
+      <BlockDrawer isOpen={isOpen} setIsOpen={setIsOpen} selectedData={selectedData} />
 
     </div>
   );

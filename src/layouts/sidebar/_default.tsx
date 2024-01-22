@@ -31,7 +31,7 @@ export default function Sidebar({
     icon: item.icon,
     href:
       layoutOption +
-      (layoutOption === `/${LAYOUT_OPTIONS.MODERN}` && item.href === '/'
+      (layoutOption === `/` && item.href === '/'
         ? ''
         : item.href),
     ...(item.dropdownItems && {
@@ -41,7 +41,7 @@ export default function Sidebar({
         href:
           item.name === 'Authentication'
             ? layoutOption + dropdownItem.href
-            : '/' + LAYOUT_OPTIONS.MODERN + dropdownItem.href,
+            : layoutOption+ dropdownItem.href,
       })),
     }),
   }));

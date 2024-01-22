@@ -1,7 +1,10 @@
 const routes = {
   home: '/',
   scanner:'/scanner',
+  contract:'/create-contract',
+  listContract:'/list-contract',
   nft:'/create-nft',
+  viewNft:'/view-contract?',
   livePricing: '/live-pricing',
   swap: '/swap',
   liquidity: '/liquidity',

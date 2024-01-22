@@ -4,8 +4,8 @@ import React, { useEffect,useState } from 'react';
 import { Star } from '@/components/icons/star';
 import { useBreakpoint } from '@/lib/hooks/use-breakpoint';
 import { useIsMounted } from '@/lib/hooks/use-is-mounted';
-import TransactionAccordionTable from './transaction-accordion-table';
-import TransactionDrawerTable from './transaction-drawer-table';
+import ContractTransactionAccordionTable from './contract-accordion-table';
+import ContractTransactionDrawerTable from './contract-drawer-table';
 import { CoinPriceData } from '@/data/static/coin-market-data';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
@@ -114,7 +114,7 @@ const COLUMNS = [
 ];
 
 
-export default function TransactionTable(props:any) {
+export default function ContractTransactionTable(props:any) {
     // const { coins } = useCoins();
     // const data = React.useMemo(() => coins, [coins]);
 
@@ -128,8 +128,8 @@ export default function TransactionTable(props:any) {
 
     return isMounted &&
         ['xs', 'sm', 'md', 'lg', 'xl'].indexOf(breakpoint) !== -1 ? (
-        <TransactionDrawerTable columns={columns} data={data} />
+        <ContractTransactionDrawerTable columns={columns} data={data} />
     ) : (
-        <TransactionAccordionTable columns={columns} data={data} />
+        <ContractTransactionAccordionTable columns={columns} data={data} />
     );
 }

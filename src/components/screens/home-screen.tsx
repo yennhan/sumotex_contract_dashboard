@@ -22,6 +22,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
 
 export default function HomeScreen() {
+
+  const [loading,setLoading]=useState(true);
   const [state, setState] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState({
     wallet_address: "",
@@ -44,13 +46,14 @@ export default function HomeScreen() {
   const clientAxios = axios.create();
   // useEffect to call the API once the component mounts
   const fetchWalletTransactions = async (address: string) => {
-    const thePubAddress = address
-    await clientAxios.post('https://rpc.sumotex.co/get-wallet-transactions',
+
+    await clientAxios.post('https://rpc.sumotex.co/get-caller-transactions',
       JSON.stringify({
-        "pub_address": thePubAddress
+        "pub_address": address
       }), {})
       .then(res => {
         setTxn(res.data.result.transactions);
+        setLoading(false);
 
       })
       .catch((error) => {
@@ -66,7 +69,6 @@ export default function HomeScreen() {
       }), {})
       .then(res => {
         return res.data.result
-
       })
       .catch((error) => {
         console.error('Error making POST request:', error.response || error);
@@ -96,7 +98,7 @@ export default function HomeScreen() {
     if (walletsString && theWallets) {
       setSelectedWallet(theWallets[0])
       fetchBalance(theWallets[0].wallet_address);
-      fetchWalletTransactions(theWallets[0].wallet_address);
+      //fetchWalletTransactions(theWallets[0].wallet_address);
       setWallets(theWallets);
     } else {
       createNewWallet();
@@ -105,9 +107,10 @@ export default function HomeScreen() {
 
   }, []); // Empty dependency array means this effect runs once on mount
   useEffect(() => {
+    console.log(selectedWallet.wallet_address)
     fetchBalance(selectedWallet.wallet_address);
     fetchWalletTransactions(selectedWallet.wallet_address);
-  }, [selectedWallet])
+  }, [selectedWallet,loading])
   const mintSMTX = async () => {
 
   };
@@ -200,7 +203,7 @@ export default function HomeScreen() {
   const WalletList = () => {
 
     return (
-      <div className="relative">
+      <div className="relative ">
         <Listbox value={selectedWallet} onChange={setSelectedWallet}>
           <Listbox.Button className="ml-4 flex w-auto items-center justify-between rounded-lg bg-gray-100 px-4 text-xs text-gray-900 dark:bg-gray-800 dark:text-white sm:text-sm lg:h-12">
             {wallets.length > 0 ? selectedWallet.wallet_address : null}
@@ -244,12 +247,9 @@ export default function HomeScreen() {
                 <div className='pt-4'>
                   <Button onClick={() => createNewWallet()}>Create New Wallet</Button>
                 </div>
-
               </Listbox.Option>
             </Listbox.Options>
-
           </Transition>
-
         </Listbox>
       </div>
     );
@@ -271,13 +271,13 @@ export default function HomeScreen() {
         hideProgressBar={false}
         newestOnTop={false}
       />
-      <div className='flex row'>
+      <div className='flex row '>
         <p>Wallet Address: </p>
         <WalletList />
       </div>
 
       <div className="flex row mt-4 grid gap-6 sm:my-10 md:grid-cols-1">
-        <div className=' w-auto items-center justify-between rounded-lg '>
+        <div className='w-auto items-center justify-between rounded-lg '>
           <div
             className='flex row'
           >Private Key
@@ -303,7 +303,7 @@ export default function HomeScreen() {
 
         </div>
 
-        <p>Balance ($): {balance>0?new BigNumber(balance).dividedBy(new BigNumber(10).pow(18)).toFixed(18):"Loading..."} SMTX</p>
+        <p>Balance ($): {balance > 0 ? new BigNumber(balance).dividedBy(new BigNumber(10).pow(18)).toFixed(18) : "Loading..."} SMTX</p>
 
         <div>
           <Button shape="rounded"
@@ -312,11 +312,11 @@ export default function HomeScreen() {
             onClick={() => mintSMTX()}>Request SMTX</Button>
 
         </div>
-        <div className="flex row mt-8 grid gap-6 sm:my-10 md:grid-cols-1">
+        <div className="flex row mt-8 grid gap-4 sm:my-10 md:grid-cols-1 sm:grid-cols-1">
           <h1>Transfer SMTX here</h1>
           {transferState == 0 ?
-            <div className='grid grid-cols-2 flex row'>
-              <div className="border border-dashed border-black p-4  dark:text-white mb-8  gap-4">
+            <div className='grid grid-cols-2 sm:grid-cols-1 md:grid-cols-1 flex row'>
+              <div className="border border-dashed border-white p-4 dark:text-white mb-8 gap-4">
                 <div className="">
                   {/* Name */}
                   <div className="mb-8">
@@ -345,7 +345,7 @@ export default function HomeScreen() {
                 <Button shape="rounded" onClick={createTransactions} className=''>Submit Request</Button>
               </div>
             </div> : transferState == 1 ?
-              <div className="border border-dashed border-black p-4  dark:text-white mb-8  gap-4">
+              <div className="border border-dashed border-white p-4  dark:text-white mb-8  gap-4">
                 <p>Gas Cost: {transferTxn.gas_cost}</p>
                 <p>Transcation Hash: {transferTxn.transaction_hash}</p>
                 <div className='mt-4'>
@@ -358,7 +358,7 @@ export default function HomeScreen() {
               </div> : null}
         </div>
         <h1>Transactions</h1>
-        {txn && txn.length > 0 ? <div>
+        {!loading &&txn? <div>
           <TransactionTable data={txn} />
         </div> : <p>Loading...</p>}
       </div>

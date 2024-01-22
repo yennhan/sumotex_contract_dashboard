@@ -15,9 +15,9 @@ import {
   useGlobalFilter,
 } from 'react-table';
 import { LongArrowLeft } from '@/components/icons/long-arrow-left';
-import TransactionsDrawer from './TransactionsDrawer';
+import ContractTransactionsDrawer from './ContractTxnDrawer';
 
-function TransactionDrawerTable({
+function ContractTransactionsDrawerTable({
   // @ts-ignore
   columns,
   // @ts-ignore
@@ -71,9 +71,6 @@ function TransactionDrawerTable({
                   !isOpen ? 'rounded-tr-lg' : ''
                 }`}
               >
-                <h2 className="shrink-0 pl-[10px] text-lg font-medium uppercase text-black dark:text-white sm:text-xl md:pl-0 2xl:text-xl 3xl:text-2xl">
-                  Wallet Transaction History
-                </h2>
                 <GlobalFilter
                   filter={globalFilter}
                   setFilter={setGlobalFilter}
@@ -198,9 +195,9 @@ function TransactionDrawerTable({
           </div>
         </div>
       </div>
-      <TransactionsDrawer isOpen={isOpen} setIsOpen={setIsOpen} selectedData={selectedData} />
+      <ContractTransactionsDrawer isOpen={isOpen} setIsOpen={setIsOpen} selectedData={selectedData} />
     </>
   );
 }
 
-export default TransactionDrawerTable;
+export default ContractTransactionsDrawerTable;

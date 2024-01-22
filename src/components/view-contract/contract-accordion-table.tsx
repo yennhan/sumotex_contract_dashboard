@@ -14,9 +14,9 @@ import {
   useGlobalFilter,
 } from 'react-table';
 import { LongArrowLeft } from '@/components/icons/long-arrow-left';
-import TransactionsDrawer from './TransactionsDrawer';
+import ContractTransactionsDrawer from './ContractTxnDrawer';
 
-function TransactionAccordionTable({
+function ContractTransactionAccordionTable({
   // @ts-ignore
   columns,
   // @ts-ignore
@@ -52,9 +52,9 @@ function TransactionAccordionTable({
   const { pageIndex } = state;
   const { globalFilter } = state;
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedData,setSelectedData]=useState({});
+  const [selectedData, setSelectedData] = useState({});
 
-  const onSelected =(selectedData:any)=>{
+  const onSelected = (selectedData: any) => {
     setSelectedData(data[selectedData])
     setIsOpen(!isOpen)
   }
@@ -65,13 +65,9 @@ function TransactionAccordionTable({
         <div className="-mx-0.5 shadow-card dark:[&_.os-scrollbar_.os-scrollbar-track_.os-scrollbar-handle:before]:!bg-white/50">
           <div className="rounded-tl-lg rounded-tr-lg bg-white pt-6 dark:bg-light-dark md:px-6 md:pt-8">
             <div
-              className={`flex items-center justify-between gap-4 border-b border-dashed border-gray-200 pb-5 dark:border-gray-700 ${
-                !isOpen ? 'rounded-tr-lg' : ''
-              }`}
+              className={`flex items-center justify-between gap-4 border-b border-dashed border-gray-200 pb-5 dark:border-gray-700 ${!isOpen ? 'rounded-tr-lg' : ''
+                }`}
             >
-              <h2 className="shrink-0 pl-[10px] text-lg font-medium uppercase text-black dark:text-white sm:text-xl md:pl-0 2xl:text-xl 3xl:text-2xl">
-              Wallet Transaction History
-              </h2>
               <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
             </div>
           </div>
@@ -101,9 +97,8 @@ function TransactionAccordionTable({
                             {column.canResize && (
                               <div
                                 {...column.getResizerProps()}
-                                className={`resizer ${
-                                  column.isResizing ? 'isResizing' : ''
-                                }`}
+                                className={`resizer ${column.isResizing ? 'isResizing' : ''
+                                  }`}
                               />
                             )}
                             <span className="ltr:ml-1 rtl:mr-1">
@@ -190,10 +185,10 @@ function TransactionAccordionTable({
           </div>
         </div>
       </div>
-      <TransactionsDrawer isOpen={isOpen} setIsOpen={setIsOpen} selectedData={selectedData} />
+      <ContractTransactionsDrawer isOpen={isOpen} setIsOpen={setIsOpen} selectedData={selectedData} />
 
     </div>
   );
 }
 
-export default TransactionAccordionTable;
+export default ContractTransactionAccordionTable;

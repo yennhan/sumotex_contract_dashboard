@@ -19,15 +19,27 @@ export const defaultMenuItems = [
     href: routes.home,
   },
   {
-    name: 'NFT Contract',
+    name: 'NFTs Contracts',
     icon: <CompassIcon />,
-    href: routes.nft,
+    href: routes.listContract,
+    dropdownItems: [
+      {
+        name: 'View Contracts',
+        icon: <CompassIcon />,
+        href: routes.listContract,
+      },
+      {
+        name: 'Create Contract',
+        icon: <PlusCircle />,
+        href: routes.contract,
+      },
+    ],
   },
-  {
-    name: 'Token Contract',
-    icon: <VoteIcon />,
-    href: routes.nft,
-  },
+  // {
+  //   name: 'Token Contract',
+  //   icon: <VoteIcon />,
+  //   href: routes.farms,
+  // },
   {
     
     name: 'Scanner',

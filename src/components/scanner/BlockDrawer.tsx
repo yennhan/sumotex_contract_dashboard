@@ -8,7 +8,7 @@ import Scrollbar from '@/components/ui/scrollbar';
 import cn from 'classnames';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-interface TransactionsDrawerProps {
+interface BlocksDrawerProps {
     isOpen: boolean;
     selectedData: {};
     setIsOpen: (isOpen: boolean) => void;
@@ -24,6 +24,7 @@ function TransactionInfo({
     value,
     className,
 }: TransactionInfoTypes) {
+    const isValueArray = Array.isArray(value); 
     return (
         <div
             className={cn(
@@ -34,20 +35,31 @@ function TransactionInfo({
             <div className=''>
             <span className="font-medium">{label}</span>
             </div>
-            <div  className=' grid-cols-2'>
-            <p className='text-sm inline-block word-break-all'>{value ? value : '_ _'}</p>
+            <div  className=' grid-cols-3'>
+            {isValueArray ? (
+                    // Render each element of the array
+                    value.map((item, index) => (
+                        <p key={index} className='text-xs'>
+                            {item},
+                        </p>
+                    ))
+                ) : (
+                    // Render a single value or placeholder if it's not an array
+                    <p className='text-sm inline-block word-break-all'>
+                        {value ? value : '_ _'}
+                    </p>
+                )}
             </div>
           
-         
         </div>
     );
 }
 
-function TransactionsDrawer({
+function BlockDrawer({
     isOpen,
     setIsOpen,
     selectedData,
-}: TransactionsDrawerProps) {
+}: BlocksDrawerProps) {
     const [data, setData] = useState(selectedData);
     useEffect(() => {
         setData(selectedData)
@@ -101,18 +113,12 @@ function TransactionsDrawer({
                                     className={`h-full rounded-br-lg rounded-tr-lg p-4 dark:bg-transparent sm:p-8 ${'dark:2xl:bg-light-dark'}`}>
                                     <div className="mb-5 border-b border-dashed border-gray-200 pb-5 dark:border-gray-800 xs:mb-7 xs:pb-6">
                                         <div className="flex flex-col gap-2 xs:gap-[18px]">
-                                            <TransactionInfo label={'Nonce'} value={data.nonce} />
-                                            <TransactionInfo label={'Transaction Hash'} value={data.txn_hash} />
-                                            <TransactionInfo label={'From Address'} value={data.caller_address} />
-                                            <TransactionInfo label={'To Address'} value={data.to_address} />
-                                            <TransactionInfo label={'Transaction Type'} value={data.txn_type} />
-                                            <TransactionInfo label={'Status'} value={data.status == 0 ? "Pending" : data.status == 1 ? "In progress" : data.status == 2 ? "Completed" : ""} />
-                                            <TransactionInfo label={'Value'} 
-                                                value={new BigNumber(data.value).dividedBy(new BigNumber(10).pow(18)).toFixed(18) +" SMTX"}/>
-                                            <TransactionInfo label={'Gas Fee'}  
-                                             value={new BigNumber(data.gas_cost).dividedBy(new BigNumber(10).pow(18)).toFixed(18) +" SMTX"}/>
+                                            <TransactionInfo label={'Block'} value={data.id} />
+                                            <TransactionInfo label={'Hash'} value={data.public_hash} />
+                                            <TransactionInfo label={'Prev Hash'} value={data.previous_hash} />
+                                            <TransactionInfo label={'Private Hash'} value={data.private_hash} />
                                             <TransactionInfo label={'Date'} value={moment.unix(data.timestamp).format("DD/MM/YYYY HH:MM")} />
-                                            <TransactionInfo label={'Signature'} value={data.signature} />
+                                            <TransactionInfo label={'Transactions'} value={data.transactions} />
                                         </div>
                                     </div>
                                 </div>
@@ -125,4 +131,4 @@ function TransactionsDrawer({
     );
 }
 
-export default TransactionsDrawer;
+export default BlockDrawer;
