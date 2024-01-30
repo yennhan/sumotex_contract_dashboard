@@ -12,17 +12,12 @@ use std::ffi::{CString, CStr};
 pub struct ERC721Token {
     pub name: String,
     pub symbol: String,
+    pub owner_credential: Vec<String>, //Passport or IC number
+    pub owner_name:Vec<String>,
     pub owner_of: Vec<String>,        // Vector to store owner addresses
+    pub owner_email: Vec<String>,  
     pub token_to_ipfs: Vec<String>,    // Vector to store IPFS hashes
-    //pub owner_of: HashMap<u64, String>,  // tokenId -> owner address
-    //pub token_to_ipfs: HashMap<u64, String>,  // tokenId -> IPFS hash
     pub token_id: u64,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct TokenDetails {
-    pub owner: String,
-    pub ipfs_link: String,
 }
 
 fn extract_string_from_wasm_memory(ptr: *mut u8, len: usize) -> String {
@@ -40,7 +35,7 @@ static mut GLOBAL_STATE: GlobalState = GlobalState {
     token_details_buffer: Vec::new(), // Initialize with an empty Vec
 };
 
-#[generate_abi]
+//#[generate_abi]
 impl ERC721Token {
 
     fn deserialize_from_memory(buffer: *const u8, len: usize) -> Result<ERC721Token, Box<dyn std::error::Error>> {
@@ -68,7 +63,10 @@ impl ERC721Token {
         let token = ERC721Token {
             name: name,
             symbol: symbol,
+            owner_name:Vec::new(),
+            owner_credential:Vec::new(),
             owner_of: Vec::new(),
+            owner_email: Vec::new(),
             token_to_ipfs: Vec::new(),
             token_id: 0,
         };
@@ -84,6 +82,14 @@ impl ERC721Token {
     pub extern "C" fn mint(
         owner_ptr: *const u8,
         owner_len: usize,
+        owner_creds_ptr: *const u8,
+        owner_creds_len: usize,
+        owner_name_ptr: *const u8,
+        owner_name_len: usize,
+        owner_email_ptr: *const u8,
+        owner_email_len: usize,
+        owner_id_ptr: *const u8,
+        owner_id_len: usize,
         ipfs_hash_ptr: *const u8,
         ipfs_hash_len: usize,
     ) -> u32 {
@@ -97,15 +103,23 @@ impl ERC721Token {
         // Convert raw pointers to Rust strings using from_utf8_lossy
         let owner_slice = unsafe { std::slice::from_raw_parts(owner_ptr, owner_len) };
         let owner_str = String::from_utf8_lossy(owner_slice).to_string();
-        println!("Mint: Owner Address String Length: {}", owner_str.len());
-        if owner_str.is_empty() {
-            println!("Mint: Error - Attempted to mint with an empty owner address.");
-            return u32::MAX; // Indicate an error condition.
-        }
+
         let ipfs_hash_slice = unsafe { std::slice::from_raw_parts(ipfs_hash_ptr, ipfs_hash_len) };
         let ipfs_hash_str = String::from_utf8_lossy(ipfs_hash_slice).to_string();
     
+        let owner_creds_slice = unsafe { std::slice::from_raw_parts(owner_creds_ptr, owner_creds_len) };
+        let owner_creds_str = String::from_utf8_lossy(owner_creds_slice).to_string();
+
+        let owner_name_slice = unsafe { std::slice::from_raw_parts(owner_name_ptr, owner_name_len) };
+        let owner_name_str = String::from_utf8_lossy(owner_name_slice).to_string();
+
+        let owner_email_slice = unsafe { std::slice::from_raw_parts(owner_id_ptr, owner_id_len) };
+        let owner_email_str = String::from_utf8_lossy(owner_of_slice).to_string();
+
         let token_id = token.token_id;
+        token.owner_credential.push(owner_creds_str);
+        token.owner_name.push(owner_name_str);
+        token.owner_email.push(owner_email_str);
         token.owner_of.push(owner_str); // Add the owner to the vector
         token.token_to_ipfs.push(ipfs_hash_str); // Add the IPFS hash to the vector
         token.token_id += 1;
@@ -115,25 +129,6 @@ impl ERC721Token {
         token_id as u32
     }
     
-    
-    #[no_mangle]
-    pub fn get_token_or_default() -> ERC721Token {
-        unsafe {
-            if let Some(token_ptr) = GLOBAL_STATE.token_ptr {
-                // Return a clone of the owned ERC721Token
-                (*token_ptr).clone()
-            } else {
-                // Return a default instance when the token is not initialized
-                ERC721Token {
-                    name: String::new(),
-                    symbol: String::new(),
-                    owner_of: Vec::new(),
-                    token_to_ipfs: Vec::new(),
-                    token_id: 0,
-                }
-            }
-        }
-    }
     #[no_mangle]
     pub extern "C" fn get_owner_len(token_id: i32) -> i64 {
         // Retrieve the pointer to the ERC721Token from GLOBAL_STATE.
@@ -204,13 +199,102 @@ impl ERC721Token {
             std::ptr::null() // Token not initialized.
         }
     }
+    #[no_mangle]
+    pub extern "C" fn get_owner_email_len(token_id: i32) -> i32 {
+        let token_ptr = unsafe { GLOBAL_STATE.token_ptr };
+        if let Some(ptr) = token_ptr {
+            let token = unsafe { &*ptr };
 
-    pub fn encode_token_details(details: &TokenDetails) -> Vec<u8> {
-        let encoded_bytes = serialize(details).expect("Encoding failed");
-        encoded_bytes
+            if token_id >= 0 && (token_id as usize) < token.owner_email.len() {
+                let owner_email_hash = &token.owner_email[token_id as usize];
+                owner_email_hash.len() as i32
+            } else {
+                -1 // Token ID out of bounds or not found.
+            }
+        } else {
+            -1 // Token not initialized.
+        }
     }
+    #[no_mangle]
+    pub extern "C" fn get_owner_email_ptr(token_id: i32) -> *const i8 {
+        let token_ptr = unsafe { GLOBAL_STATE.token_ptr };
+        if let Some(ptr) = token_ptr {
+            let token = unsafe { &*ptr };
 
+            if token_id >= 0 && (token_id as usize) < token.owner_email.len() {
+                let owner_email_str = &token.owner_email[token_id as usize];
+                owner_email_str.as_ptr() as *const i8
+            } else {
+                std::ptr::null() // Token ID out of bounds or not found.
+            }
+        } else {
+            std::ptr::null() // Token not initialized.
+        }
+    }
+    #[no_mangle]
+    pub extern "C" fn get_owner_name_len(token_id: i32) -> i32 {
+        let token_ptr = unsafe { GLOBAL_STATE.token_ptr };
+        if let Some(ptr) = token_ptr {
+            let token = unsafe { &*ptr };
 
+            if token_id >= 0 && (token_id as usize) < token.owner_name.len() {
+                let owner_name_hash = &token.owner_name[token_id as usize];
+                owner_name_hash.len() as i32
+            } else {
+                -1 // Token ID out of bounds or not found.
+            }
+        } else {
+            -1 // Token not initialized.
+        }
+    }
+    #[no_mangle]
+    pub extern "C" fn get_owner_name_ptr(token_id: i32) -> *const i8 {
+        let token_ptr = unsafe { GLOBAL_STATE.token_ptr };
+        if let Some(ptr) = token_ptr {
+            let token = unsafe { &*ptr };
+
+            if token_id >= 0 && (token_id as usize) < token.owner_name.len() {
+                let owner_name_hash = &token.owner_name[token_id as usize];
+                owner_name_hash.as_ptr() as *const i8
+            } else {
+                std::ptr::null() // Token ID out of bounds or not found.
+            }
+        } else {
+            std::ptr::null() // Token not initialized.
+        }
+    }
+    #[no_mangle]
+    pub extern "C" fn get_owner_creds_len(token_id: i32) -> i32 {
+        let token_ptr = unsafe { GLOBAL_STATE.token_ptr };
+        if let Some(ptr) = token_ptr {
+            let token = unsafe { &*ptr };
+
+            if token_id >= 0 && (token_id as usize) < token.owner_credential.len() {
+                let owner_creds_hash = &token.owner_credential[token_id as usize];
+                owner_creds_hash.len() as i32
+            } else {
+                -1 // Token ID out of bounds or not found.
+            }
+        } else {
+            -1 // Token not initialized.
+        }
+    }
+    #[no_mangle]
+    pub extern "C" fn get_owner_creds_ptr(token_id: i32) -> *const i8 {
+        let token_ptr = unsafe { GLOBAL_STATE.token_ptr };
+        if let Some(ptr) = token_ptr {
+            let token = unsafe { &*ptr };
+
+            if token_id >= 0 && (token_id as usize) < token.owner_credential.len() {
+                let owner_creds_hash = &token.owner_credential[token_id as usize];
+                owner_creds_hash.as_ptr() as *const i8
+            } else {
+                std::ptr::null() // Token ID out of bounds or not found.
+            }
+        } else {
+            std::ptr::null() // Token not initialized.
+        }
+    }
     #[no_mangle]
     pub extern "C" fn transfer(&mut self, 
         from: String, to: String, token_id: i32) -> Result<(), &'static str >{

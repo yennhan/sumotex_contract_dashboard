@@ -8,6 +8,7 @@ import InputLabel from '@/components/ui/input-label';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
 import routes from '@/config/routes';
+import moment from 'moment';
 import AnchorLink from '@/components/ui/links/anchor-link';
 export default function ListContractScreen() {
 
@@ -30,22 +31,23 @@ export default function ListContractScreen() {
     })
     const [contractList, setContractList] = useState([]);
     const [ipfs, setIPFS] = useState("");
+    const [wallets, setWallets] = useState([]);
     const clientAxios = axios.create();
     // useEffect to call the API once the component mounts
     useEffect(() => {
-        const thePubAddress = localStorage.getItem("wallet_address");
-        const thePrivateKey = localStorage.getItem("private_key");
-        if (thePubAddress && thePrivateKey) {
-            setWallet({
-                wallet_address: thePubAddress,
-                private_key: thePrivateKey
-            })
-        } else {
+        const walletsString = localStorage.getItem("wallets");
+        const theWallets = walletsString ? JSON.parse(walletsString) : [];
+        if (walletsString && theWallets) {
+          //fetchWalletTransactions(theWallets[0].wallet_address);
+          setWallets(theWallets);
         }
-        fetchWalletTransactions();
+
     }, []); // Empty dependency array means this effect runs once on mount
+    useEffect(() => {
+        fetchWalletTransactions();
+    }, [wallets]); // Empty dependency array means this effect runs once on mount
     const fetchWalletTransactions = async () => {
-        const thePubAddress = await localStorage.getItem("wallet_address");
+        const thePubAddress = wallets[0].wallet_address;
         await clientAxios.post('https://rpc.sumotex.co/get-caller-transactions',
             JSON.stringify({
                 "pub_address": thePubAddress
@@ -97,99 +99,6 @@ export default function ListContractScreen() {
             console.error('Error:', error);
         }
     }
-    const createNFTContract = async () => {
-        const thePubAddress = localStorage.getItem("wallet_address");
-        const thePrivateKey = localStorage.getItem("private_key");
-        setLoading(true);
-        if (nft.name !== "") {
-            if (stage == 0) {
-                try {
-                    fetch('https://rpc.sumotex.co/create-nft-contract', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            "call_address": thePubAddress,
-                            "private_key": thePrivateKey,
-                            "contract_name": nft.name,
-                            "contract_symbol": nft.symbol,
-                            "transaction_type": "ContractCreation"
-
-                        })
-                    })
-                        .then(res => {
-
-                            if (!res.ok) {
-                                throw new Error(`HTTP error! Status: ${res.status}`);
-                            }
-
-                            return res.json();
-                        })
-                        .then(data => {
-                            setContractDetail(data.result)
-                            setLoading(false)
-                            toast("Contract created! Sign it")
-                            setStage(1)
-                        })
-                        .catch(error => console.error('Error:', error));
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            } else if (stage == 1) {
-                try {
-                    fetch('https://rpc.sumotex.co/sign-transaction', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            "caller_address": thePubAddress,
-                            "private_key": thePrivateKey,
-                            "transaction_type": "ContractCreation",
-                            "computed_value": contractDetail.gas_cost,
-                            "txn_hash": contractDetail.txn_hash
-
-                        })
-                    })
-                        .then(res => {
-                            console.log(res)
-                            if (!res.ok) {
-                                throw new Error(`HTTP error! Status: ${res.status}`);
-                            }
-
-                            return res.json();
-                        })
-                        .then(data => {
-                            setLoading(false)
-                            setStage(2);
-                            toast("Contract signed")
-                        })
-                        .catch(error => console.error('Error:', error));
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            }
-
-        } else {
-            setLoading(false);
-            toast.error("Fill up your NFT Collections Name")
-        }
-
-    };
-    const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        if (name && value !== undefined) {
-            setNFTContract(prevStore => {
-                const nftContract = { ...prevStore, [name]: value };
-                return nftContract;
-            });
-        } else {
-            console.error('onChange received undefined or no name:', name, value);
-        }
-    }
 
     return (
         <>
@@ -211,9 +120,10 @@ export default function ListContractScreen() {
             <h1>List of Contracts</h1>
             <div className="flex flex-wrap">
                 {contractList.map((item, index) => (
-                    <div key={index} className='col-span-3 m-6 p-4 border-solid border border-white rounded'>
-                        <div className='text-sm mb-4'>
-                            <p>Contract Address: {item.to_address} </p>
+                    <div key={index} className='col-span-6 m-6 p-4 border-solid border border-white rounded'>
+                        <div className=' mb-4'>
+                            <p className='text-xs'>Contract Address: {item.to_address} </p>
+                            <p className='text-xs'>Created Date:{moment.unix(item.timestamp).format("DD/MM/YYYY HH:MM")} </p>
                         </div>
                         <div>
                             <AnchorLink

@@ -4,6 +4,7 @@ const routes = {
   contract:'/create-contract',
   listContract:'/list-contract',
   nft:'/create-nft',
+  viewCert:'/view-cert?',
   viewNft:'/view-contract?',
   livePricing: '/live-pricing',
   swap: '/swap',

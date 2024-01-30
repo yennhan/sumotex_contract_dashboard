@@ -23,30 +23,22 @@ export default function CreateContractScreen() {
         "gas_cost": 0,
         "txn_hash": ""
     })
-    const [wallet, setWallet] = useState({
-        wallet_address: "",
-        private_key: ""
-
-    });
-    const [contractList, setContractList] = useState([]);
-    const clientAxios = axios.create();
+    const [wallets, setWallets] = useState([]);
     const [abiCode, setABICode] = useState([]);
     const [contractCode, setContractCode] = useState("");
     const [fileContent, setFileContent] = useState('');
+    const [wasm,setWasm]=useState("");
     // useEffect to call the API once the component mounts
     const defaultERC721RsFilePath = '/template/templateERC721.rs'; // Replace with your default Rust file path
     useEffect(() => {
-        const thePubAddress = localStorage.getItem("wallet_address");
-        const thePrivateKey = localStorage.getItem("private_key");
-        if (thePubAddress && thePrivateKey) {
-            setWallet({
-                wallet_address: thePubAddress,
-                private_key: thePrivateKey
-            })
-        } else {
+        const walletsString = localStorage.getItem("wallets");
+        const theWallets = walletsString ? JSON.parse(walletsString) : [];
+        if (walletsString && theWallets) {
+          //fetchWalletTransactions(theWallets[0].wallet_address);
+          setWallets(theWallets);
         }
-        fetchWalletTransactions();
         loadRsFile(defaultERC721RsFilePath);
+        
     }, []); // Empty dependency array means this effect runs once on mount
     useEffect(() => {
         convertToJsonString()
@@ -63,6 +55,7 @@ export default function CreateContractScreen() {
             })
             .then((content) => {
                 setFileContent(content);
+                convertToJsonString()
 
             })
             .catch((error) => {
@@ -73,41 +66,24 @@ export default function CreateContractScreen() {
     const convertToJsonString = () => {
         try {
             const jsonString = JSON.stringify(fileContent);
-            setContractCode(jsonString);
+            
+            setContractCode(fileContent);
         } catch (error) {
             console.error('Error:', error);
         }
     };
 
-    const fetchWalletTransactions = async () => {
-        const thePubAddress = await localStorage.getItem("wallet_address");
-        await clientAxios.post('https://rpc.sumotex.co/get-wallet-transactions',
-            JSON.stringify({
-                "pub_address": thePubAddress
-            }), {})
-            .then(res => {
-                var theArray = res.data.result.transactions;
-                var newArray = theArray.filter(function (el: any) {
-                    return el.txn_type == "ContractCreation"
-                })
-                setContractList(newArray)
-            })
-            .catch((error) => {
-                console.error('Error making POST request:', error.response || error);
-                // Handle errors appropriately
-            });
-    }
     const compileContract = async () => {
         try {
             fetch('https://generator-wasm.sumotex.co/compile', {
                 method: 'POST',
-                mode: 'cors', // Try different modes here
+                mode:'cors',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    source_code: contractCode
+                   source_code: contractCode
                 })
             })
                 .then(res => {
@@ -117,11 +93,14 @@ export default function CreateContractScreen() {
                     return res.json();
                 })
                 .then(data => {
-                    setABICode(JSON.parse(data.abi))
+                    
+                    //setABICode(JSON.parse(data.abi))
+                    setWasm(data.wasm);
 
                     toast("WASM and ABI generated!")
                 })
                 .catch(error => {
+                    toast(error)
                     console.error('Fetch Error:', error);
                 });
         } catch (error) {
@@ -139,40 +118,35 @@ export default function CreateContractScreen() {
         
       }, 2500);
     }
-    const createNFTContract = async () => {
-        const thePubAddress = localStorage.getItem("wallet_address");
-        const thePrivateKey = localStorage.getItem("private_key");
+    const createContract = async () => {
+        console.log(wasm);
         setLoading(true);
-        if ("nft.name" !== "") {
             if (stage == 0) {
                 try {
-                    fetch('https://rpc.sumotex.co/create-nft-contract', {
+                    fetch('https://rpc.sumotex.co/create-contract', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            "call_address": thePubAddress,
-                            "private_key": thePrivateKey,
-                            "contract_name": "nft.name",
-                            "contract_symbol": "nft.symbol",
-                            "transaction_type": "ContractCreation"
-
+                            "call_address": wallets[0].wallet_address,
+                            "private_key": wallets[0].private_key,
+                            "contract_name": "name",
+                            "contract_symbol": "symbol",
+                            "wasm_file":wasm
                         })
                     })
                         .then(res => {
-
                             if (!res.ok) {
                                 throw new Error(`HTTP error! Status: ${res.status}`);
                             }
-
                             return res.json();
                         })
                         .then(data => {
                             setContractDetail(data.result)
                             setLoading(false)
-                            toast("Contract created! Sign it")
+                            toast(data.result)
                             setStage(1)
                         })
                         .catch(error => console.error('Error:', error));
@@ -188,12 +162,11 @@ export default function CreateContractScreen() {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            "caller_address": thePubAddress,
-                            "private_key": thePrivateKey,
+                            "caller_address": wallets[0].wallet_address,
+                            "private_key": wallets[0].private_key,
                             "transaction_type": "ContractCreation",
                             "computed_value": contractDetail.gas_cost,
                             "txn_hash": contractDetail.txn_hash
-
                         })
                     })
                         .then(res => {
@@ -213,12 +186,6 @@ export default function CreateContractScreen() {
                     console.error('Error:', error);
                 }
             }
-
-        } else {
-            setLoading(false);
-            toast.error("Fill up your NFT Collections Name")
-        }
-
     };
     const handleUpdateCode = (updatedCode: string) => {
         setContractCode(updatedCode); // Update the state in the parent component
@@ -287,7 +254,7 @@ export default function CreateContractScreen() {
             >
                 <TabPanel className="focus:outline-none">
                     <div className='grid grid-cols-12 flex h-[100vh]'>
-                        <div className='col-span-10 h-full'>
+                        <div className='col-span-9 h-full'>
                             {contractCode !== "" ? <EditableCodeViewer
                                 initialCode={contractCode}
                                 onCodeChange={handleUpdateCode}
@@ -296,7 +263,7 @@ export default function CreateContractScreen() {
                             </div>}
 
                         </div>
-                        <div className='col-span-2'>
+                        <div className='ml-2 col-span-3 gap-2'>
                             <div className='flex flex-col justify-center text-center gap-4'>
                                 <Button
                                     shape="rounded"
@@ -307,17 +274,6 @@ export default function CreateContractScreen() {
                                 >
                                     Compile
                                 </Button>
-
-                                <div>
-                                    <Button
-                                        shape="rounded"
-                                        variant='solid'
-                                        color="primary"
-                                        size="large"
-                                    >
-                                        Copy WASM
-                                    </Button>
-                                </div>
                                 <div>
                                     <Button
                                         shape="rounded"
@@ -328,15 +284,22 @@ export default function CreateContractScreen() {
                                         Copy ABI code
                                     </Button>
                                 </div>
-                                {stage == 0 ? <div>
+                                <div>
+                                    <p
+                                    className='text-xs'
+                                    >{contractDetail.contract_address!=""?"Address:"+contractDetail.contract_address:null}
+                                    <br/>
+                                    {contractDetail.txn_hash!=""?"Transaction Hash:"+contractDetail.txn_hash:null}</p>
+                                </div>
+                                {stage == 0 && wasm!=""? <div>
                                     <Button
                                         shape="rounded"
                                         variant='solid'
-                                        color="success"
+                                        color="primary"
                                         size="large"
                                         isLoading={loading}
-                                        onClick={() => createNFTContract()}
-                                    >DEPLOY Contract</Button>
+                                        onClick={() => createContract()}
+                                    >Deploy Contract</Button>
                                 </div> : stage == 1 ?
                                     <div>
                                         <Button
@@ -344,7 +307,7 @@ export default function CreateContractScreen() {
                                             variant='solid'
                                             color="success"
                                             isLoading={loading}
-                                            onClick={() => createNFTContract()}
+                                            onClick={() => createContract()}
                                         >Sign Contract</Button>
                                     </div> : null}
                             </div>
@@ -376,9 +339,9 @@ export default function CreateContractScreen() {
 
                 </TabPanel>
                 <TabPanel className="focus:outline-none">
-                    <div className="flex flex-col-reverse">
+                    {/* <div className="flex flex-col-reverse">
                         <Button>Download WASM file</Button>
-                    </div>
+                    </div> */}
                 </TabPanel>
             </ParamTab>
 

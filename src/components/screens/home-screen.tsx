@@ -107,7 +107,6 @@ export default function HomeScreen() {
 
   }, []); // Empty dependency array means this effect runs once on mount
   useEffect(() => {
-    console.log(selectedWallet.wallet_address)
     fetchBalance(selectedWallet.wallet_address);
     fetchWalletTransactions(selectedWallet.wallet_address);
   }, [selectedWallet,loading])

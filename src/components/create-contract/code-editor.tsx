@@ -8,7 +8,7 @@ const EditableCodeViewer = ({ initialCode,onCodeChange }) => {
         handleChange(initialCode)
     },[initialCode])
     const handleChange = (newCode) => {
-        setCode(JSON.parse(newCode));
+        setCode((newCode));
         if (onCodeChange) {
             onCodeChange(newCode); // Call the callback function with the new code
         }
